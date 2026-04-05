@@ -1,5 +1,6 @@
 package lk.tech.moondb.controller;
 
+import jakarta.validation.Valid;
 import lk.tech.moondb.dto.GroupDto;
 import lk.tech.moondb.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ public class GroupController {
     private final GroupService groupService;
 
     @PostMapping("/user/{userId}")
-    public GroupDto create(@PathVariable Long userId, @RequestBody GroupDto groupDto) {
+    public GroupDto create(@PathVariable Long userId, @Valid @RequestBody GroupDto groupDto) {
         return groupService.create(userId, groupDto);
     }
 

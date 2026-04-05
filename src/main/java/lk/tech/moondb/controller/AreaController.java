@@ -1,5 +1,6 @@
 package lk.tech.moondb.controller;
 
+import jakarta.validation.Valid;
 import lk.tech.moondb.dto.AreaDto;
 import lk.tech.moondb.service.AreaService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ public class AreaController {
     private final AreaService areaService;
 
     @PostMapping("/group/{groupId}")
-    public AreaDto create(@PathVariable Long groupId, @RequestBody AreaDto areaDto) {
+    public AreaDto create(@PathVariable Long groupId, @Valid @RequestBody AreaDto areaDto) {
         return areaService.create(groupId, areaDto);
     }
 

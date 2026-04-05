@@ -1,5 +1,6 @@
 package lk.tech.moondb.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 public class UserDto {
     private Long id;
+
+    @NotBlank(message = "Auth ID is mandatory")
     private String authId;
     private List<GroupDto> groups;
 }
