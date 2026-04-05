@@ -22,6 +22,9 @@ public class UserDto {
     @Schema(description = "External Auth ID (e.g. from Firebase or Keycloak)", example = "auth0|123456")
     private String authId;
 
+    @Schema(description = "User email address", example = "user@example.com")
+    private String email;
+
     @Schema(description = "List of groups assigned to the user")
     private List<GroupDto> groups;
 }

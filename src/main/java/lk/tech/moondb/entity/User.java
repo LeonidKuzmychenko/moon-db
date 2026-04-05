@@ -24,6 +24,9 @@ public class User {
     @Column(name = "auth_id", nullable = false, unique = true)
     private String authId;
 
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Group> groups = new ArrayList<>();
 
