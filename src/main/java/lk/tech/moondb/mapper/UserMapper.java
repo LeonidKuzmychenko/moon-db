@@ -1,0 +1,21 @@
+package lk.tech.moondb.mapper;
+
+import lk.tech.moondb.dto.UserDto;
+import lk.tech.moondb.entity.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.ReportingPolicy;
+
+import java.util.List;
+
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = {GroupMapper.class})
+public interface UserMapper {
+
+    UserDto toDto(User user);
+
+    User toEntity(UserDto userDto);
+
+    List<UserDto> toDtoList(List<User> users);
+}

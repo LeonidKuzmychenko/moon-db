@@ -1,6 +1,8 @@
 package lk.tech.moondb.service;
 
+import lk.tech.moondb.dto.UserDto;
 import lk.tech.moondb.entity.User;
+import lk.tech.moondb.mapper.UserMapper;
 import lk.tech.moondb.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,18 +14,21 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public User create(User user) {
-        return userRepository.save(user);
+    public UserDto create(UserDto userDto) {
+        User user = userMapper.toEntity(userDto);
+        return userMapper.toDto(userRepository.save(user));
     }
 
-    public User get(Long id) {
-        return userRepository.findById(id)
+    public UserDto get(Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        return userMapper.toDto(user);
     }
 
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public List<UserDto> getAll() {
+        return userMapper.toDtoList(userRepository.findAll());
     }
 
     public void delete(Long id) {

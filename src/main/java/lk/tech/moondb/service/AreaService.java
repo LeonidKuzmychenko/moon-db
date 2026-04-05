@@ -1,7 +1,9 @@
 package lk.tech.moondb.service;
 
+import lk.tech.moondb.dto.AreaDto;
 import lk.tech.moondb.entity.Area;
 import lk.tech.moondb.entity.Group;
+import lk.tech.moondb.mapper.AreaMapper;
 import lk.tech.moondb.repository.AreaRepository;
 import lk.tech.moondb.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,21 +17,23 @@ public class AreaService {
 
     private final AreaRepository areaRepository;
     private final GroupRepository groupRepository;
+    private final AreaMapper areaMapper;
 
-    public Area create(Long groupId, Area area) {
-        if (areaRepository.existsById(area.getId())) {
+    public AreaDto create(Long groupId, AreaDto areaDto) {
+        if (areaRepository.existsById(areaDto.getId())) {
             throw new RuntimeException("Area already exists");
         }
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Group not found"));
 
+        Area area = areaMapper.toEntity(areaDto);
         area.setGroup(group);
-        return areaRepository.save(area);
+        return areaMapper.toDto(areaRepository.save(area));
     }
 
-    public List<Area> getByGroup(Long groupId) {
-        return areaRepository.findByGroupId(groupId);
+    public List<AreaDto> getByGroup(Long groupId) {
+        return areaMapper.toDtoList(areaRepository.findByGroupId(groupId));
     }
 
     public void delete(Long id) {
