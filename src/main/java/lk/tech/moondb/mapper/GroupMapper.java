@@ -2,8 +2,10 @@ package lk.tech.moondb.mapper;
 
 import lk.tech.moondb.dto.GroupDto;
 import lk.tech.moondb.entity.Group;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
@@ -18,4 +20,11 @@ public interface GroupMapper {
     Group toEntity(GroupDto groupDto);
 
     List<GroupDto> toDtoList(List<Group> groups);
+
+    @AfterMapping
+    default void linkAreas(@MappingTarget Group group) {
+        if (group.getAreas() != null) {
+            group.getAreas().forEach(area -> area.setGroup(group));
+        }
+    }
 }

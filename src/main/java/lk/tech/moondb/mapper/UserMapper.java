@@ -2,8 +2,10 @@ package lk.tech.moondb.mapper;
 
 import lk.tech.moondb.dto.UserDto;
 import lk.tech.moondb.entity.User;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
@@ -18,4 +20,11 @@ public interface UserMapper {
     User toEntity(UserDto userDto);
 
     List<UserDto> toDtoList(List<User> users);
+
+    @AfterMapping
+    default void linkGroups(@MappingTarget User user) {
+        if (user.getGroups() != null) {
+            user.getGroups().forEach(group -> group.setUser(user));
+        }
+    }
 }

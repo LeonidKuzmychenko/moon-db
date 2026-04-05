@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class UserService {
 
     public UserDto create(UserDto userDto) {
         User user = userMapper.toEntity(userDto);
+        user.setAuthId(UUID.randomUUID().toString());//TODO тут должен быть Auth сервер
         return userMapper.toDto(userRepository.save(user));
     }
 
