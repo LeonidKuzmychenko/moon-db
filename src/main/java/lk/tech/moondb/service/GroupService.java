@@ -1,5 +1,6 @@
 package lk.tech.moondb.service;
 
+import lk.tech.moondb.dto.GroupCreateRequest;
 import lk.tech.moondb.dto.GroupDto;
 import lk.tech.moondb.entity.Group;
 import lk.tech.moondb.entity.User;
@@ -19,11 +20,11 @@ public class GroupService {
     private final UserRepository userRepository;
     private final GroupMapper groupMapper;
 
-    public GroupDto create(Long userId, GroupDto groupDto) {
+    public GroupDto create(Long userId, GroupCreateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Group group = groupMapper.toEntity(groupDto);
+        Group group = groupMapper.toEntity(request);
         group.setUser(user);
         return groupMapper.toDto(groupRepository.save(group));
     }

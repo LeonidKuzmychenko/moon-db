@@ -1,5 +1,6 @@
 package lk.tech.moondb.mapper;
 
+import lk.tech.moondb.dto.AreaCreateRequest;
 import lk.tech.moondb.dto.AreaDto;
 import lk.tech.moondb.entity.Area;
 import org.mapstruct.Mapper;
@@ -15,6 +16,8 @@ public interface AreaMapper {
     AreaDto toDto(Area area);
 
     Area toEntity(AreaDto areaDto);
+
+    Area toEntity(AreaCreateRequest request);
 
     List<AreaDto> toDtoList(List<Area> areas);
 }

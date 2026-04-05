@@ -1,5 +1,6 @@
 package lk.tech.moondb.service;
 
+import lk.tech.moondb.dto.UserCreateRequest;
 import lk.tech.moondb.dto.UserDto;
 import lk.tech.moondb.entity.User;
 import lk.tech.moondb.mapper.UserMapper;
@@ -17,9 +18,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public UserDto create(UserDto userDto) {
-        User user = userMapper.toEntity(userDto);
-        user.setAuthId(UUID.randomUUID().toString());//TODO тут должен быть Auth сервер
+    public UserDto create(UserCreateRequest request) {
+        User user = userMapper.toEntity(request);
+        user.setAuthId(UUID.randomUUID().toString()); //TODO authId будем получить от сервиса авторизации
         return userMapper.toDto(userRepository.save(user));
     }
 

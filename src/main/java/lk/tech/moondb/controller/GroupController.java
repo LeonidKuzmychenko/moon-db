@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lk.tech.moondb.dto.ErrorResponse;
+import lk.tech.moondb.dto.GroupCreateRequest;
 import lk.tech.moondb.dto.GroupDto;
 import lk.tech.moondb.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,8 @@ public class GroupController {
             @ApiResponse(responseCode = "500", description = "User not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public GroupDto create(@PathVariable Long userId, @Valid @RequestBody GroupDto groupDto) {
-        return groupService.create(userId, groupDto);
+    public GroupDto create(@PathVariable Long userId, @Valid @RequestBody GroupCreateRequest request) {
+        return groupService.create(userId, request);
     }
 
     @GetMapping("/user/{userId}")

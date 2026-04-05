@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lk.tech.moondb.dto.ErrorResponse;
+import lk.tech.moondb.dto.UserCreateRequest;
 import lk.tech.moondb.dto.UserDto;
 import lk.tech.moondb.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid input data",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public UserDto create(@Valid @RequestBody UserDto userDto) {
-        return userService.create(userDto);
+    public UserDto create(@Valid @RequestBody UserCreateRequest request) {
+        return userService.create(request);
     }
 
     @GetMapping("/{id}")

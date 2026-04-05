@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lk.tech.moondb.dto.AreaCreateRequest;
 import lk.tech.moondb.dto.AreaDto;
 import lk.tech.moondb.dto.ErrorResponse;
 import lk.tech.moondb.service.AreaService;
@@ -32,8 +33,8 @@ public class AreaController {
             @ApiResponse(responseCode = "500", description = "Group not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public AreaDto create(@PathVariable Long groupId, @Valid @RequestBody AreaDto areaDto) {
-        return areaService.create(groupId, areaDto);
+    public AreaDto create(@PathVariable Long groupId, @Valid @RequestBody AreaCreateRequest request) {
+        return areaService.create(groupId, request);
     }
 
     @GetMapping("/group/{groupId}")
