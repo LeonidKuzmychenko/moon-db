@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: moon-db
+  datasource:
+    url: jdbc:postgresql://localhost:5432/moon
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        default_schema: users
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
