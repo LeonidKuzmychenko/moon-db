@@ -57,4 +57,10 @@ public class UserController {
     public void delete(@PathVariable Long id) {
         userService.delete(id);
     }
+
+    @PatchMapping("/{id}/email")
+    @Operation(summary = "Update user email")
+    public UserDto updateEmail(@PathVariable Long id, @RequestParam String email) {
+        return userService.updateEmail(id, email);
+    }
 }

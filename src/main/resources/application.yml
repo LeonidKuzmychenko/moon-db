@@ -1,8 +1,12 @@
+server:
+  port: 8181
+
 spring:
   application:
     name: moon-db
   datasource:
-    url: jdbc:postgresql://localhost:5432/moon
+    url: jdbc:postgresql://postgres:5432/orbitals
+#    url: jdbc:postgresql://localhost:5433/orbitals
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver

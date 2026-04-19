@@ -37,4 +37,11 @@ public class UserService {
     public void delete(Long id) {
         userRepository.deleteById(id);
     }
+
+    public UserDto updateEmail(Long id, String email) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setEmail(email);
+        return userMapper.toDto(userRepository.save(user));
+    }
 }

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель: Список пользователей</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        tr:nth-child(even) { background-color: #fafafa; }
+        .actions { display: flex; gap: 10px; }
+        button { cursor: pointer; padding: 6px 12px; border: none; border-radius: 4px; }
+        .btn-view { background-color: #2196F3; color: white; }
+        .btn-edit { background-color: #4CAF50; color: white; }
+        .btn-delete { background-color: #f44336; color: white; }
+        button:hover { opacity: 0.8; }
+        .loader { display: none; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Управление пользователями</h1>
+    <div id="loader" class="loader">Загрузка...</div>
+    <table id="usersTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Кол-во групп</th>
+                <th>Кол-во Area</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Данные будут здесь -->
+        </tbody>
+    </table>
+
+    <script src="config.js"></script>
+    <script>
+        async function fetchUsers() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'block';
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/users`);
+                if (!response.ok) throw new Error('Ошибка при загрузке пользователей');
+                const users = await response.json();
+                renderUsers(users);
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function renderUsers(users) {
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            users.forEach(user => {
+                const groupCount = user.groups ? user.groups.length : 0;
+                let areaCount = 0;
+                if (user.groups) {
+                    user.groups.forEach(g => {
+                        if (g.areas) areaCount += g.areas.length;
+                    });
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.email}</td>
+                    <td>${groupCount}</td>
+                    <td>${areaCount}</td>
+                    <td class="actions">
+                        <button class="btn-view" onclick="viewUser(${user.id})">Посмотреть</button>
+                        <button class="btn-edit" onclick="editUser(${user.id})">Изменить</button>
+                        <button class="btn-delete" onclick="deleteUser(${user.id})">Удалить</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function viewUser(id) {
+            window.location.href = `user-edit.html?id=${id}&mode=view`;
+        }
+
+        function editUser(id) {
+            window.location.href = `user-edit.html?id=${id}&mode=edit`;
+        }
+
+        async function deleteUser(id) {
+            if (confirm(`Вы уверены, что хотите удалить пользователя с ID ${id}?`)) {
+                try {
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/users/${id}`, { method: 'DELETE' });
+                    if (!response.ok) throw new Error('Ошибка при удалении');
+                    fetchUsers();
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+        }
+
+        window.onload = fetchUsers;
+    </script>
+</body>
+</html>

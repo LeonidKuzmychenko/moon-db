@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователем</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        h1, h2, h3 { color: #333; margin-top: 0; }
+        .group-card { border: 1px solid #eee; padding: 10px; margin-bottom: 10px; background-color: #fcfcfc; }
+        .area-list { list-style: none; padding-left: 0; display: flex; flex-wrap: wrap; gap: 5px; }
+        .area-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; font-size: 0.9em; display: flex; align-items: center; gap: 5px; }
+        .area-delete { cursor: pointer; color: #f44336; font-weight: bold; }
+        .actions { margin-top: 20px; display: flex; gap: 10px; }
+        button { cursor: pointer; padding: 6px 12px; border: none; border-radius: 4px; }
+        .btn-primary { background-color: #4CAF50; color: white; }
+        .btn-secondary { background-color: #2196F3; color: white; }
+        .btn-danger { background-color: #f44336; color: white; }
+        .btn-back { background-color: #757575; color: white; }
+        button:hover { opacity: 0.8; }
+        input[type="text"], input[type="email"] { padding: 8px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        .form-group { margin-bottom: 10px; }
+        .hidden { display: none; }
+        .view-mode-only { display: none; }
+        .edit-mode-only { display: none; }
+        body.view-mode .view-mode-only { display: block; }
+        body.edit-mode .edit-mode-only { display: block; }
+        body.view-mode input, body.view-mode button:not(.btn-back) { display: none; }
+        body.view-mode .area-delete { display: none; }
+    </style>
+</head>
+<body class="view-mode">
+    <div class="container">
+        <div class="section-header">
+            <h1 id="pageTitle">Управление пользователем</h1>
+            <button class="btn-back" onclick="window.location.href='index.html'">Назад к списку</button>
+        </div>
+
+        <div id="loader" style="text-align: center; display: none;">Загрузка...</div>
+
+        <div id="content" class="hidden">
+            <!-- Email section -->
+            <div class="section">
+                <h2>Основные данные</h2>
+                <div class="form-group">
+                    <label>ID: </label> <span id="userId"></span>
+                </div>
+                <div class="form-group">
+                    <label>Email: </label>
+                    <input type="email" id="userEmail" />
+                    <button class="btn-primary edit-mode-only" onclick="updateEmail()">Сохранить Email</button>
+                </div>
+            </div>
+
+            <!-- Groups section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>Группы</h2>
+                    <button class="btn-secondary edit-mode-only" onclick="showAddGroupForm()">Добавить группу</button>
+                </div>
+
+                <div id="addGroupForm" class="section hidden">
+                    <h3>Новая группа</h3>
+                    <input type="text" id="groupUrl" placeholder="URL (e.g. https://...)" />
+                    <input type="text" id="groupTile" placeholder="Tile (e.g. Group A)" />
+                    <div class="actions">
+                        <button class="btn-primary" onclick="addGroup()">Создать</button>
+                        <button class="btn-back" onclick="hideAddGroupForm()">Отмена</button>
+                    </div>
+                </div>
+
+                <div id="groupsList">
+                    <!-- Группы будут здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+        const mode = urlParams.get('mode') || 'view';
+
+        if (!userId) {
+            alert('ID пользователя не указан');
+            window.location.href = 'index.html';
+        }
+
+        document.body.className = `${mode}-mode`;
+        document.getElementById('pageTitle').textContent = mode === 'edit' ? 'Редактирование пользователя' : 'Просмотр пользователя';
+
+        async function fetchUser() {
+            const loader = document.getElementById('loader');
+            const content = document.getElementById('content');
+            loader.style.display = 'block';
+            content.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/users/${userId}`);
+                if (!response.ok) throw new Error('Ошибка при загрузке данных пользователя');
+                const user = await response.json();
+                renderUser(user);
+                content.classList.remove('hidden');
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function renderUser(user) {
+            document.getElementById('userId').textContent = user.id;
+            document.getElementById('userEmail').value = user.email;
+
+            const groupsList = document.getElementById('groupsList');
+            groupsList.innerHTML = '';
+
+            if (user.groups && user.groups.length > 0) {
+                user.groups.forEach(group => {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'group-card';
+                    groupDiv.innerHTML = `
+                        <div class="section-header">
+                            <div>
+                                <strong>ID: ${group.id}</strong> | ${group.tile} | <a href="${group.url}" target="_blank">${group.url}</a>
+                            </div>
+                            <button class="btn-danger edit-mode-only" onclick="deleteGroup(${group.id})">Удалить группу</button>
+                        </div>
+                        <div>
+                            <h4>Areas:</h4>
+                            <ul class="area-list" id="area-list-${group.id}">
+                                ${group.areas ? group.areas.map(area => `
+                                    <li class="area-item">
+                                        ${area.id}
+                                        <span class="area-delete edit-mode-only" onclick="deleteArea(${area.id})">×</span>
+                                    </li>
+                                `).join('') : 'Нет зон'}
+                            </ul>
+                            <div class="form-group edit-mode-only" style="margin-top: 10px; display: flex; gap: 5px;">
+                                <input type="text" id="new-area-id-${group.id}" placeholder="Area ID" style="width: 100px; margin-bottom: 0;">
+                                <button class="btn-secondary" onclick="addArea(${group.id})">Добавить Area</button>
+                            </div>
+                        </div>
+                    `;
+                    groupsList.appendChild(groupDiv);
+                });
+            } else {
+                groupsList.innerHTML = '<p>У пользователя нет групп</p>';
+            }
+        }
+
+        async function updateEmail() {
+            const email = document.getElementById('userEmail').value;
+            if (!email) return alert('Email не может быть пустым');
+            
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/users/${userId}/email?email=${encodeURIComponent(email)}`, {
+                    method: 'PATCH'
+                });
+                if (!response.ok) throw new Error('Ошибка при обновлении email');
+                alert('Email обновлен');
+                fetchUser();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function showAddGroupForm() {
+            document.getElementById('addGroupForm').classList.remove('hidden');
+        }
+
+        function hideAddGroupForm() {
+            document.getElementById('addGroupForm').classList.add('hidden');
+        }
+
+        async function addGroup() {
+            const url = document.getElementById('groupUrl').value;
+            const tile = document.getElementById('groupTile').value;
+            if (!url || !tile) return alert('Заполните все поля');
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/groups/user/${userId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, tile })
+                });
+                if (!response.ok) throw new Error('Ошибка при добавлении группы');
+                hideAddGroupForm();
+                fetchUser();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function deleteGroup(groupId) {
+            if (confirm(`Удалить группу ID ${groupId}?`)) {
+                try {
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/groups/${groupId}`, { method: 'DELETE' });
+                    if (!response.ok) throw new Error('Ошибка при удалении группы');
+                    fetchUser();
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+        }
+
+        async function addArea(groupId) {
+            const areaId = document.getElementById(`new-area-id-${groupId}`).value;
+            if (!areaId) return alert('Введите ID зоны');
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/areas/group/${groupId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: parseInt(areaId) })
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Ошибка при добавлении зоны');
+                }
+                fetchUser();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function deleteArea(areaId) {
+            if (confirm(`Удалить зону ID ${areaId}?`)) {
+                try {
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/areas/${areaId}`, { method: 'DELETE' });
+                    if (!response.ok) throw new Error('Ошибка при удалении зоны');
+                    fetchUser();
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+        }
+
+        window.onload = fetchUser;
+    </script>
+</body>
+</html>
